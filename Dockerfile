@@ -1,9 +1,52 @@
 FROM php:5.5-fpm
 
+# builddeps
+RUN apt-get update && apt-get install -y --no-install-recommends \
+		autoconf \
+    automake \
+    bzip2 \
+    ca-certificates \
+    curl \
+    file \
+    g++ \
+    gcc \
+    gettext-base \
+    git \
+    imagemagick \
+    libbz2-dev \
+    libc6-dev \
+    libcurl4-openssl-dev \
+    libevent-dev \
+    libffi-dev \
+    libgeoip-dev \
+    libglib2.0-dev \
+    libjpeg-dev \
+    liblzma-dev \
+    libmagickcore-dev \
+    libmagickwand-dev \
+    libmysqlclient-dev \
+    libncurses-dev \
+    libpng-dev \
+    libpng12-dev \
+    libpq-dev \
+    libreadline-dev \
+    libsqlite3-dev \
+    libssl-dev \
+    libtool \
+    libwebp-dev \
+    libxml2-dev \
+    libxslt-dev \
+    libyaml-dev \
+    make \
+    openssh-client \
+    patch \
+    wget \
+    xz-utils \
+    zlib1g-dev \
+	&& rm -rf /var/lib/apt/lists/*
+
 # install the PHP extensions we need
-RUN apt-get update && apt-get install -y libpng12-dev libjpeg-dev libpq-dev \
-	&& rm -rf /var/lib/apt/lists/* \
-	&& docker-php-ext-configure gd --with-png-dir=/usr --with-jpeg-dir=/usr \
+RUN docker-php-ext-configure gd --with-png-dir=/usr --with-jpeg-dir=/usr \
 	&& docker-php-ext-install gd mbstring pdo pdo_mysql pdo_pgsql zip
 
 VOLUME /var/www/html
@@ -14,7 +57,7 @@ ENV NGINX_VERSION 1.9.11-1~jessie
 RUN apt-key adv --keyserver hkp://pgp.mit.edu:80 --recv-keys 573BFD6B3D8FBC641079A6ABABF5BD827BD9BF62 \
 	&& echo "deb http://nginx.org/packages/mainline/debian/ jessie nginx" >> /etc/apt/sources.list \
 	&& apt-get update \
-	&& apt-get install -y ca-certificates nginx=${NGINX_VERSION} gettext-base \
+	&& apt-get install -y nginx=${NGINX_VERSION}  \
 	&& rm -rf /var/lib/apt/lists/*
 	
 RUN ln -sf /dev/stdout /var/log/nginx/access.log \
@@ -26,49 +69,6 @@ COPY drupal.conf /etc/nginx/conf.d/default.conf
 
 # drupal config for php
 COPY opcache-recommended.ini drupal.ini /usr/local/etc/php/conf.d/
-
-# builddeps
-RUN apt-get update && apt-get install -y --no-install-recommends \
-		ca-certificates \
-		curl \
-		wget \
-		git \
-		openssh-client \
-		autoconf \
-		automake \
-		bzip2 \
-		file \
-		g++ \
-		gcc \
-		imagemagick \
-		libbz2-dev \
-		libc6-dev \
-		libcurl4-openssl-dev \
-		libevent-dev \
-		libffi-dev \
-		libgeoip-dev \
-		libglib2.0-dev \
-		libjpeg-dev \
-		liblzma-dev \
-		libmagickcore-dev \
-		libmagickwand-dev \
-		libmysqlclient-dev \
-		libncurses-dev \
-		libpng-dev \
-		libpq-dev \
-		libreadline-dev \
-		libsqlite3-dev \
-		libssl-dev \
-		libtool \
-		libwebp-dev \
-		libxml2-dev \
-		libxslt-dev \
-		libyaml-dev \
-		make \
-		patch \
-		xz-utils \
-		zlib1g-dev \
-	&& rm -rf /var/lib/apt/lists/*
 
 # node
 # gpg keys listed at https://github.com/nodejs/node

@@ -33,6 +33,18 @@ COPY drupal.conf /etc/nginx/conf.d/default.conf
 
 # drupal config for php
 COPY opcache-recommended.ini drupal.ini /usr/local/etc/php/conf.d/
+
+RUN apt-get update && apt-get -y install mysql-client
+
+WORKDIR /root
+RUN curl -L -O https://github.com/drush-ops/drush/archive/5.11.0.tar.gz \
+	&& tar -xzf 5.11.0.tar.gz \
+	&& chmod u+x /root/drush-5.11.0/drush \
+	&& ln -s /root/drush-5.11.0/drush /usr/bin/drush5
+
+RUN curl -O http://files.drush.org/drush.phar \
+	&& chmod +x drush.phar \
+	&& mv drush.phar /usr/local/bin/drush
 	
 EXPOSE 80 443
 

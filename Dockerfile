@@ -17,7 +17,8 @@ RUN apt-key adv --keyserver hkp://pgp.mit.edu:80 --recv-keys 573BFD6B3D8FBC64107
 	&& rm -rf /var/lib/apt/lists/*
 	
 # xdebug & redis
-RUN yes | pecl install redis-2.2.5 memcache-3.0.8 xdebug \
+RUN yes | pecl install redis-2.2.5 memcache-3.0.8 xdebug xhprof \
+	&& echo "extension=xhprof.so" > /usr/local/etc/php/conf.d/xhprof.ini \
 	&& echo "extension=redis.so" > /usr/local/etc/php/conf.d/redis.ini \
 	&& echo "extension=memcache.so" > /usr/local/etc/php/conf.d/memcache.ini \
 	&& echo "zend_extension=$(find /usr/local/lib/php/extensions/ -name xdebug.so)" > /usr/local/etc/php/conf.d/xdebug.ini \ 

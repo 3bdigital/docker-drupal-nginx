@@ -64,6 +64,9 @@ RUN newrelic-install install
 	
 EXPOSE 80 443
 
+COPY ssl/dev.3bweb.com.crt /etc/nginx/ssl/dev.3bweb.com.crt
+COPY ssl/dev.3bweb.com.key /etc/nginx/ssl/dev.3bweb.com.key
+
 COPY docker-entrypoint.sh /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
 

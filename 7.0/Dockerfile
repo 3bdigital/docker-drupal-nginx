@@ -17,11 +17,16 @@ RUN apt-key adv --keyserver hkp://pgp.mit.edu:80 --recv-keys 573BFD6B3D8FBC64107
 	&& rm -rf /var/lib/apt/lists/*
 	
 # xdebug & redis
-RUN yes | pecl install redis-2.2.5 memcache-3.0.8 xdebug \
+RUN yes | pecl install redis-2.2.5 xdebug \
 	&& echo "extension=redis.so" > /usr/local/etc/php/conf.d/redis.ini \
-	&& echo "extension=memcache.so" > /usr/local/etc/php/conf.d/memcache.ini \
 	&& echo "zend_extension=$(find /usr/local/lib/php/extensions/ -name xdebug.so)" > /usr/local/etc/php/conf.d/xdebug.ini \ 
 	&& echo "xdebug.max_nesting_level=500" >> /usr/local/etc/php/conf.d/xdebug.ini
+
+# memcached
+RUN apt-get update && apt-get install -y libmemcached-dev libmemcached11 libmemcachedutil2
+
+RUN echo $(pkg-config libmemcached --variable=prefix) | pecl install memcached-3.0.3 \
+	&& echo "extension=memcached.so" > /usr/local/etc/php/conf.d/memcached.ini
 
 # forward request and error logs to docker log collector
 RUN ln -sf /dev/stdout /var/log/nginx/access.log \
@@ -57,15 +62,15 @@ RUN newrelic-install install
 	
 EXPOSE 80 443
 
-COPY ../ssl/dev.3bweb.com.crt /etc/nginx/ssl/dev.3bweb.com.crt
-COPY ../ssl/dev.3bweb.com.key /etc/nginx/ssl/dev.3bweb.com.key
+COPY ssl/dev.3bweb.com.crt /etc/nginx/ssl/dev.3bweb.com.crt
+COPY ssl/dev.3bweb.com.key /etc/nginx/ssl/dev.3bweb.com.key
 
 # drupal config for nginx
-COPY ../nginx.conf /etc/nginx/nginx.conf
-COPY ../drupal.conf /etc/nginx/conf.d/default.conf
+COPY nginx.conf /etc/nginx/nginx.conf
+COPY drupal.conf /etc/nginx/conf.d/default.conf
 
 # drupal config for php
-COPY ../opcache-recommended.ini ../drupal.ini /usr/local/etc/php/conf.d/
+COPY opcache-recommended.ini drupal.ini /usr/local/etc/php/conf.d/
 
 COPY docker-entrypoint.sh /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]

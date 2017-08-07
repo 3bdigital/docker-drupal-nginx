@@ -57,15 +57,15 @@ RUN newrelic-install install
 	
 EXPOSE 80 443
 
-COPY ../ssl/dev.3bweb.com.crt /etc/nginx/ssl/dev.3bweb.com.crt
-COPY ../ssl/dev.3bweb.com.key /etc/nginx/ssl/dev.3bweb.com.key
+COPY ssl/dev.3bweb.com.crt /etc/nginx/ssl/dev.3bweb.com.crt
+COPY ssl/dev.3bweb.com.key /etc/nginx/ssl/dev.3bweb.com.key
 
 # drupal config for nginx
-COPY ../nginx.conf /etc/nginx/nginx.conf
-COPY ../drupal.conf /etc/nginx/conf.d/default.conf
+COPY nginx.conf /etc/nginx/nginx.conf
+COPY drupal.conf /etc/nginx/conf.d/default.conf
 
 # drupal config for php
-COPY ../opcache-recommended.ini ../drupal.ini /usr/local/etc/php/conf.d/
+COPY opcache-recommended.ini drupal.ini /usr/local/etc/php/conf.d/
 
 COPY docker-entrypoint.sh /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]

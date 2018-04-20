@@ -55,6 +55,27 @@ COPY drupal.ini /usr/local/etc/php/conf.d/
 
 WORKDIR /var/www/html
 
+ENV NGINX_VERSION 1.9.11-1~jessie
+
+RUN curl -O https://nginx.org/keys/nginx_signing.key && apt-key add ./nginx_signing.key \
+	&& echo "deb http://nginx.org/packages/mainline/debian/ jessie nginx" >> /etc/apt/sources.list \
+	&& apt-get update \
+	&& apt-get install -y ca-certificates nginx=${NGINX_VERSION} gettext-base \
+	&& rm -rf /var/lib/apt/lists/*
+	
+# xdebug & redis
+RUN yes | pecl install redis-2.2.5 memcache-3.0.8 xdebug \
+	&& echo "extension=redis.so" > /usr/local/etc/php/conf.d/redis.ini \
+	&& echo "extension=memcache.so" > /usr/local/etc/php/conf.d/memcache.ini \
+	&& echo "zend_extension=$(find /usr/local/lib/php/extensions/ -name xdebug.so)" > /usr/local/etc/php/conf.d/xdebug.ini \ 
+	&& echo "xdebug.max_nesting_level=500" >> /usr/local/etc/php/conf.d/xdebug.ini
+
+# forward request and error logs to docker log collector
+RUN ln -sf /dev/stdout /var/log/nginx/access.log \
+	&& ln -sf /dev/stderr /var/log/nginx/error.log
+
+RUN apt-get update && apt-get -y install mysql-client
+
 # Install Drush 8
 # If the .phar becomes unavailable this could be installed using Composer
 # e.g. RUN composer global require drush/drush:"$DRUSH_VERSION" --prefer-dist

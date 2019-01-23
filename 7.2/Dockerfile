@@ -50,15 +50,21 @@ RUN { \
 		echo 'opcache.enable_cli=1'; \
 	} > /usr/local/etc/php/conf.d/opcache-recommended.ini
 	
+RUN yes | pecl install igbinary-2.0.8 redis-4.2.0 \
+	&& echo "extension=redis.so" > /usr/local/etc/php/conf.d/redis.ini \
+	&& echo "extension=igbinary.so" > /usr/local/etc/php/conf.d/igbinary.ini
+	
 # copy Drupal config for php
 COPY drupal.ini /usr/local/etc/php/conf.d/
 
 WORKDIR /var/www/html
 
-ENV NGINX_VERSION 1.9.11-1~jessie
+ENV NGINX_VERSION 1.15.8-1~stretch
+
+RUN apt-get update && apt-get install -y gnupg
 
 RUN curl -O https://nginx.org/keys/nginx_signing.key && apt-key add ./nginx_signing.key \
-	&& echo "deb http://nginx.org/packages/mainline/debian/ jessie nginx" >> /etc/apt/sources.list \
+	&& echo "deb http://nginx.org/packages/mainline/debian/ stretch nginx" >> /etc/apt/sources.list \
 	&& apt-get update \
 	&& apt-get install -y ca-certificates nginx=${NGINX_VERSION} gettext-base \
 	&& rm -rf /var/lib/apt/lists/*

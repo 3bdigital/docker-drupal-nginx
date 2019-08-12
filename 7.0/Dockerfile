@@ -73,7 +73,7 @@ RUN curl -O https://nginx.org/keys/nginx_signing.key && apt-key add ./nginx_sign
 RUN ln -sf /dev/stdout /var/log/nginx/access.log \
 	&& ln -sf /dev/stderr /var/log/nginx/error.log
 
-RUN apt-get update && apt-get -y install mysql-client
+RUN apt-get update && apt-get -y install mariadb-client
 
 # Install Drush 8
 # If the .phar becomes unavailable this could be installed using Composer

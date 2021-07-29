@@ -1,5 +1,5 @@
 #!/bin/bash
 
-chown -R www-data:www-data /var/www/html/sites/default/files
+chown -R www-data:www-data /var/www/web/sites/default/files
 
 exec "$@"

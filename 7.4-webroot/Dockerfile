@@ -58,7 +58,7 @@ RUN yes | pecl install igbinary-2.0.8 redis-4.2.0 \
 # copy Drupal config for php
 COPY drupal.ini /usr/local/etc/php/conf.d/
 
-WORKDIR /var/www/html
+WORKDIR /var/www/web
 
 ENV NGINX_VERSION 1.15.8-1~stretch
 
@@ -76,13 +76,8 @@ RUN ln -sf /dev/stdout /var/log/nginx/access.log \
 
 RUN apt-get update && apt-get -y install mariadb-client
 
-# Install Drush 8
-# If the .phar becomes unavailable this could be installed using Composer
-# e.g. RUN composer global require drush/drush:"$DRUSH_VERSION" --prefer-dist
-RUN curl -OL https://github.com/drush-ops/drush/releases/download/8.1.16/drush.phar \
-	&& chmod +x drush.phar \
-	&& mv drush.phar /usr/local/bin/drush
-ENV DRUSH_VERSION 8.1.16
+# Add projects's Composer bin directory to PATH. This will allow Drush to be run.
+RUN echo "export PATH=\"/var/www/vendor/bin:$PATH\"" >> ~/.bashrc
 	
 EXPOSE 80 443
 

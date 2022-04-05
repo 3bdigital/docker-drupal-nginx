@@ -1,6 +1,6 @@
 FROM php:7.2-fpm
 
-# install the PHP extensions we need
+# Install the PHP extensions we need
 RUN set -ex; \
 	\
 	if command -v a2enmod; then \
@@ -25,7 +25,7 @@ RUN set -ex; \
 		zip \
 	; \
 	\
-# reset apt-mark's "manual" list so that "purge --auto-remove" will remove all build dependencies
+# Reset apt-mark's "manual" list so that "purge --auto-remove" will remove all build dependencies
 	apt-mark auto '.*' > /dev/null; \
 	apt-mark manual $savedAptMark; \
 	ldd "$(php -r 'echo ini_get("extension_dir");')"/*.so \
@@ -39,7 +39,7 @@ RUN set -ex; \
 	apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false; \
 	rm -rf /var/lib/apt/lists/*
 
-# set recommended PHP.ini settings
+# Set recommended php.ini settings
 # see https://secure.php.net/manual/en/opcache.installation.php
 RUN { \
 		echo 'opcache.memory_consumption=128'; \
@@ -54,11 +54,12 @@ RUN yes | pecl install igbinary-2.0.8 redis-4.2.0 \
 	&& echo "extension=redis.so" > /usr/local/etc/php/conf.d/redis.ini \
 	&& echo "extension=igbinary.so" > /usr/local/etc/php/conf.d/igbinary.ini
 	
-# copy Drupal config for php
+# Copy Drupal config for PHP
 COPY drupal.ini /usr/local/etc/php/conf.d/
 
 WORKDIR /var/www/web
 
+# Install NGINX
 ENV NGINX_VERSION 1.21.6-1~buster
 
 RUN apt-get update && apt-get install -y gnupg
@@ -69,10 +70,11 @@ RUN curl -O https://nginx.org/keys/nginx_signing.key && apt-key add ./nginx_sign
 	&& apt-get install -y ca-certificates nginx=${NGINX_VERSION} gettext-base \
 	&& rm -rf /var/lib/apt/lists/*
 
-# forward request and error logs to docker log collector
+# Forward request and error logs to Docker log collector
 RUN ln -sf /dev/stdout /var/log/nginx/access.log \
 	&& ln -sf /dev/stderr /var/log/nginx/error.log
 
+# Install MariaDB client
 RUN apt-get update && apt-get -y install mariadb-client
 
 # Add projects's Composer bin directory to PATH. This will allow Drush to be run.
@@ -80,14 +82,15 @@ RUN echo "export PATH=\"/var/www/vendor/bin:$PATH\"" >> ~/.bashrc
 	
 EXPOSE 80 443
 
+# Add a dummp SSL certificate and key
 COPY ssl/dev.3bweb.com.crt /etc/nginx/ssl/dev.3bweb.com.crt
 COPY ssl/dev.3bweb.com.key /etc/nginx/ssl/dev.3bweb.com.key
 
-# drupal config for nginx
+# Drupal config for NGINX
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY drupal.conf /etc/nginx/conf.d/default.conf
 
-# drupal config for php
+# Drupal config for PHP
 COPY opcache-recommended.ini drupal.ini /usr/local/etc/php/conf.d/
 
 COPY docker-entrypoint.sh /entrypoint.sh

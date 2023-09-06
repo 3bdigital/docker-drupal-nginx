@@ -1,4 +1,4 @@
-FROM php:8.0-fpm
+FROM php:8.0-fpm-bullseye
 
 # Install the PHP extensions we need
 RUN set -ex; \
@@ -64,15 +64,7 @@ COPY drupal.ini /usr/local/etc/php/conf.d/
 WORKDIR /var/www/web
 
 # Install NGINX
-ENV NGINX_VERSION 1.21.6-1~bullseye
-
-RUN apt-get update && apt-get install -y gnupg
-
-RUN curl -O https://nginx.org/keys/nginx_signing.key && apt-key add ./nginx_signing.key \
-	&& echo "deb http://nginx.org/packages/mainline/debian/ bullseye nginx" >> /etc/apt/sources.list \
-	&& apt-get update \
-	&& apt-get install -y ca-certificates nginx=${NGINX_VERSION} gettext-base \
-	&& rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y nginx
 
 # Forward request and error logs to Docker log collector
 RUN ln -sf /dev/stdout /var/log/nginx/access.log \
@@ -85,10 +77,6 @@ RUN apt-get update && apt-get -y install mariadb-client
 RUN echo "export PATH=\"/var/www/vendor/bin:$PATH\"" >> ~/.bashrc
 	
 EXPOSE 80 443
-
-# Add a dummp SSL certificate and key
-COPY ssl/dev.3bweb.com.crt /etc/nginx/ssl/dev.3bweb.com.crt
-COPY ssl/dev.3bweb.com.key /etc/nginx/ssl/dev.3bweb.com.key
 
 # Drupal config for NGINX
 COPY nginx.conf /etc/nginx/nginx.conf

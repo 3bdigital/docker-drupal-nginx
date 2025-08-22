@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        version: ["8.0", "8.1", "8.2"]
+        version: ["8.0", "8.1", "8.2", 8.3", "8.4"]
 
     steps:
       - name: Checkout repository
@@ -43,6 +43,8 @@ jobs:
         run: |
           if [[ "${{ github.event_name }}" == "schedule" ]]; then
             echo "tag=${{ matrix.version }}-nightly" >> $GITHUB_OUTPUT
+          elif [[ "${GITHUB_REF_NAME}" != "master" && "${GITHUB_REF_NAME}" != "main" ]]; then
+            echo "tag=${{ matrix.version }}-${GITHUB_REF_NAME}" >> $GITHUB_OUTPUT
           else
             echo "tag=${{ matrix.version }}" >> $GITHUB_OUTPUT
           fi
@@ -51,6 +53,6 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: "{{defaultContext}}:${{ matrix.version }}"
-          push: false
+          push: true
           tags: ${{ vars.DOCKERHUB_REPO }}:${{ steps.vars.outputs.tag }}
           platforms: linux/amd64,linux/arm64

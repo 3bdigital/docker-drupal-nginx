@@ -6,6 +6,8 @@
 docker buildx build --push --platform linux/amd64,linux/arm64 -t 3bdigital/drupal-nginx:8.0 8.0
 docker buildx build --push --platform linux/amd64,linux/arm64 -t 3bdigital/drupal-nginx:8.1 8.1
 docker buildx build --push --platform linux/amd64,linux/arm64 -t 3bdigital/drupal-nginx:8.2 8.2
+docker buildx build --push --platform linux/amd64,linux/arm64 -t 3bdigital/drupal-nginx:8.3 8.3
+docker buildx build --push --platform linux/amd64,linux/arm64 -t 3bdigital/drupal-nginx:8.4 8.4
 
 #################################################
 # Retired images
